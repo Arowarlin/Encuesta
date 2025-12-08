@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Administración</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+</head>
+<body class="bg-gray-50">
+  <nav class="bg-indigo-600 text-white shadow-lg">
+    <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold">⚙️ Panel de Administración</h1>
+      <a href="index.html" class="bg-indigo-500 px-4 py-2 rounded hover:bg-indigo-400">← Volver</a>
+    </div>
+  </nav>
+
+  <div class="container mx-auto px-6 py-8">
+    <!-- Tabs -->
+    <div class="mb-8 border-b border-gray-200">
+      <nav class="flex space-x-8">
+        <button onclick="mostrarTab('participantes')" id="tab-participantes" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-indigo-600 text-indigo-600">
+          Participantes
+        </button>
+        <button onclick="mostrarTab('cargos')" id="tab-cargos" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700">
+          Cargos y Aspirantes
+        </button>
+        <button onclick="mostrarTab('enviar')" id="tab-enviar" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700">
+          Enviar Encuestas
+        </button>
+      </nav>
+    </div>
+
+    <!-- Tab: Participantes -->
+    <div id="content-participantes" class="tab-content">
+      <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">Registrar Participante</h2>
+        <form id="formParticipante" class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-gray-700 font-semibold mb-2">Correo Electrónico*</label>
+            <input type="email" id="correo" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-gray-700 font-semibold mb-2">Nombre*</label>
+            <input type="text" id="nombre" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-gray-700 font-semibold mb-2">Apellido*</label>
+            <input type="text" id="apellido" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-gray-700 font-semibold mb-2">Campo 1</label>
+            <input type="text" id="campo1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-gray-700 font-semibold mb-2">Campo 2</label>
+            <input type="text" id="campo2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-gray-700 font-semibold mb-2">Campo 3</label>
+            <input type="text" id="campo3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:outline-none">
+          </div>
+          <div class="md:col-span-2">
+            <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 font-semibold">
+              Registrar Participante
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-lg p-6">
+        <h3 class="text-xl font-bold text-gray-800 mb-4">Lista de Participantes</h3>
+        <div id="listaParticipantes" class="overflow-x-auto"></div>
+      </div>
+    </div>
+
+    <!-- Tab: Cargos y Aspirantes -->
+    <div id="content-cargos" class="tab-content hidden">
+      <div class="grid md:grid-cols-2 gap-8">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+          <h2 class="text-2xl font-bold text-gray-800 mb-6">Registrar Cargo</h2>
+          <form id="formCargo">
+            <div class="mb-4">
+              <label class="block text-gray-700 font-semibold mb-2">Nombre del Cargo*</label>
+              <input type="text" id="nombreCargo" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:outline-none">
+            </div>
+            <div class="mb-4">
+              <label class="block text-gray-700 font-semibold mb-2">Descripción</label>
+              <textarea id="descripcionCargo" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:outline-none"></textarea>
+            </div>
+            <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 font-semibold">
+              Registrar Cargo
+            </button>
+          </form>
+          <div class="mt-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-3">Cargos Registrados</h3>
+            <div id="listaCargos"></div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-lg p-6">
+          <h2 class="text-2xl font-bold text-gray-800 mb-6">Registrar Aspirante</h2>
+          <form id="formAspirante">
+            <div class="mb-4">
+              <label class="block text-gray-700 font-semibold mb-2">Seleccionar Cargo*</label>
+              <select id="cargoSelect" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:outline-none">
+                <option value="">-- Selecciona un cargo --</option>
+              </select>
+            </div>
+            <div class="mb-4">
+              <label class="block text-gray-700 font-semibold mb-2">Nombre del Aspirante*</label>
+              <input type="text" id="nombreAspirante" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:outline-none">
+            </div>
+            <div class="mb-4">
+              <label class="block text-gray-700 font-semibold mb-2">Descripción</label>
+              <textarea id="descripcionAspirante" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:outline-none"></textarea>
+            </div>
+            <button type="submit" class="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 font-semibold">
+              Registrar Aspirante
+            </button>
+          </form>
+          <div class="mt-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-3">Aspirantes Registrados</h3>
+            <div id="listaAspirantes"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Enviar Encuestas -->
+    <div id="content-enviar" class="tab-content hidden">
+      <div class="bg-white rounded-lg shadow-lg p-6">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">Enviar Encuestas por Correo</h2>
+        <div id="estadisticas" class="grid md:grid-cols-3 gap-4 mb-6"></div>
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+          <p class="text-yellow-800"><strong>Nota:</strong> Se enviará un correo electrónico con un enlace único a cada participante registrado.</p>
+        </div>
+        <button onclick="enviarEncuestas()" class="w-full bg-indigo-600 text-white py-4 rounded-lg hover:bg-indigo-700 font-semibold text-lg">
+          📧 Enviar Encuestas a Todos
+        </button>
+        <div id="progressBar" class="hidden mt-6">
+          <div class="bg-gray-200 rounded-full h-4 mb-2">
+            <div id="progressFill" class="bg-indigo-600 h-4 rounded-full transition-all" style="width: 0%"></div>
+          </div>
+          <p id="progressText" class="text-center text-gray-700"></p>
+        </div>
+        <div id="resultadoEnvio" class="mt-6"></div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initFirebase } from './firebase-service.js';
+    import { initEmailService } from './email-service.js';
+
+    // Inicializar servicios
+    const db = initFirebase(firebaseConfig);
+    const emailSvc = initEmailService(emailJSConfig);
+
+    window.db = db;
+    window.emailSvc = emailSvc;
+
+    // Tabs
+    window.mostrarTab = function(tab) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(el => {
+        el.classList.remove('border-indigo-600', 'text-indigo-600');
+        el.classList.add('border-transparent', 'text-gray-500');
+      });
+      
+      document.getElementById(`content-${tab}`).classList.remove('hidden');
+      document.getElementById(`tab-${tab}`).classList.add('border-indigo-600', 'text-indigo-600');
+      document.getElementById(`tab-${tab}`).classList.remove('border-transparent', 'text-gray-500');
+
+      if (tab === 'enviar') cargarEstadisticas();
+    };
+
+    // Participantes
+    document.getElementById('formParticipante').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      btn.textContent = 'Registrando...';
+
+      try {
+        await db.registrarParticipante({
+          correo: document.getElementById('correo').value,
+          nombre: document.getElementById('nombre').value,
+          apellido: document.getElementById('apellido').value,
+          campo1: document.getElementById('campo1').value,
+          campo2: document.getElementById('campo2').value,
+          campo3: document.getElementById('campo3').value
+        });
+        
+        alert('✅ Participante registrado exitosamente');
+        e.target.reset();
+        cargarParticipantes();
+      } catch (error) {
+        alert('❌ Error: ' + error.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Registrar Participante';
+      }
+    });
+
+    async function cargarParticipantes() {
+      const participantes = await db.obtenerParticipantes();
+      document.getElementById('listaParticipantes').innerHTML = `
+        <table class="min-w-full">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Correo</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombre</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            ${participantes.map(p => `
+              <tr>
+                <td class="px-6 py-4 text-sm">${p.correo}</td>
+                <td class="px-6 py-4 text-sm">${p.nombre} ${p.apellido}</td>
+                <td class="px-6 py-4 text-sm">
+                  ${p.haVotado ? '<span class="text-green-600 font-semibold">✓ Votó</span>' : '<span class="text-gray-400">Pendiente</span>'}
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    // Cargos
+    document.getElementById('formCargo').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        await db.registrarCargo({
+          nombre: document.getElementById('nombreCargo').value,
+          descripcion: document.getElementById('descripcionCargo').value
+        });
+        alert('✅ Cargo registrado');
+        e.target.reset();
+        cargarCargos();
+      } catch (error) {
+        alert('❌ Error: ' + error.message);
+      }
+    });
+
+    async function cargarCargos() {
+      const cargos = await db.obtenerCargos();
+      document.getElementById('listaCargos').innerHTML = cargos.map(c => `
+        <div class="border border-gray-200 rounded p-3 mb-2">
+          <strong>${c.nombre}</strong>
+          <p class="text-sm text-gray-600">${c.descripcion || ''}</p>
+        </div>
+      `).join('');
+
+      document.getElementById('cargoSelect').innerHTML = `
+        <option value="">-- Selecciona un cargo --</option>
+        ${cargos.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('')}
+      `;
+    }
+
+    // Aspirantes
+    document.getElementById('formAspirante').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        await db.registrarAspirante({
+          cargoId: document.getElementById('cargoSelect').value,
+          nombre: document.getElementById('nombreAspirante').value,
+          descripcion: document.getElementById('descripcionAspirante').value
+        });
+        alert('✅ Aspirante registrado');
+        e.target.reset();
+        cargarAspirantes();
+      } catch (error) {
+        alert('❌ Error: ' + error.message);
+      }
+    });
+
+    async function cargarAspirantes() {
+      const [aspirantes, cargos] = await Promise.all([
+        db.obtenerAspirantes(),
+        db.obtenerCargos()
+      ]);
+
+      const cargosMap = Object.fromEntries(cargos.map(c => [c.id, c.nombre]));
+
+      document.getElementById('listaAspirantes').innerHTML = aspirantes.map(a => `
+        <div class="border border-gray-200 rounded p-3 mb-2">
+          <strong>${a.nombre}</strong>
+          <p class="text-xs text-gray-500">Cargo: ${cargosMap[a.cargoId] || 'N/A'}</p>
+          <p class="text-sm text-gray-600">${a.descripcion || ''}</p>
+        </div>
+      `).join('');
+    }
+
+    async function cargarEstadisticas() {
+      const stats = await db.obtenerEstadisticas();
+      document.getElementById('estadisticas').innerHTML = `
+        <div class="bg-blue-50 p-4 rounded-lg text-center">
+          <div class="text-3xl font-bold text-blue-600">${stats.totalParticipantes}</div>
+          <div class="text-sm text-gray-600">Participantes</div>
+        </div>
+        <div class="bg-green-50 p-4 rounded-lg text-center">
+          <div class="text-3xl font-bold text-green-600">${stats.totalCargos}</div>
+          <div class="text-sm text-gray-600">Cargos</div>
+        </div>
+        <div class="bg-purple-50 p-4 rounded-lg text-center">
+          <div class="text-3xl font-bold text-purple-600">${stats.totalVotantes}</div>
+          <div class="text-sm text-gray-600">Han Votado</div>
+        </div>
+      `;
+    }
+
+    window.enviarEncuestas = async function() {
+      if (!confirm('¿Enviar encuestas a todos los participantes?')) return;
+
+      const participantes = await db.obtenerParticipantes();
+      const progressBar = document.getElementById('progressBar');
+      progressBar.classList.remove('hidden');
+
+      const resultado = await emailSvc.enviarEncuestaMasiva(participantes, APP_CONFIG.baseUrl, (progress) => {
+        document.getElementById('progressFill').style.width = progress.porcentaje + '%';
+        document.getElementById('progressText').textContent = `${progress.actual}/${progress.total} - ${progress.porcentaje}%`;
+      });
+
+      document.getElementById('resultadoEnvio').innerHTML = `
+        <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+          <h3 class="font-bold text-green-800 mb-2">✅ Encuestas Enviadas</h3>
+          <p class="text-green-700">Enviados: ${resultado.enviados}</p>
+          <p class="text-green-700">Errores: ${resultado.errores}</p>
+        </div>
+      `;
+    };
+
+    // Cargar datos iniciales
+    cargarParticipantes();
+    cargarCargos();
+    cargarAspirantes();
+  </script>
+  <script src="./config.js"></script>
+</body>
+</html>

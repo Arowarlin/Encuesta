@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plataforma de Encuestas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-indigo-50 to-blue-50 min-h-screen">
+  <nav class="bg-indigo-600 text-white shadow-lg">
+    <div class="container mx-auto px-6 py-4">
+      <h1 class="text-2xl font-bold">📊 Plataforma de Encuestas - Cloud Edition</h1>
+    </div>
+  </nav>
+
+  <div class="container mx-auto px-6 py-12">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 class="text-4xl font-bold text-gray-800 mb-4">Sistema de Encuestas en la Nube</h2>
+        <p class="text-gray-600 text-lg">Gestiona encuestas profesionales sin servidor local</p>
+        <div class="mt-4 flex justify-center items-center space-x-2">
+          <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">
+            ☁️ 100% Cloud
+          </span>
+          <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">
+            🔥 Firebase
+          </span>
+          <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-semibold">
+            📧 EmailJS
+          </span>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-8">
+        <!-- Card Administración -->
+        <div class="bg-white rounded-lg shadow-xl p-8 hover:shadow-2xl transition transform hover:-translate-y-1">
+          <div class="text-center mb-6">
+            <div class="bg-indigo-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg class="w-10 h-10 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-2">Administración</h3>
+            <p class="text-gray-600 mb-6">Gestiona participantes, cargos y envía encuestas</p>
+          </div>
+          <a href="admin.html" class="block w-full bg-indigo-600 text-white text-center py-3 rounded-lg hover:bg-indigo-700 transition font-semibold">
+            Acceder al Panel
+          </a>
+        </div>
+
+        <!-- Card Resultados -->
+        <div class="bg-white rounded-lg shadow-xl p-8 hover:shadow-2xl transition transform hover:-translate-y-1">
+          <div class="text-center mb-6">
+            <div class="bg-green-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+              </svg>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-2">Resultados</h3>
+            <p class="text-gray-600 mb-6">Visualiza los resultados en tiempo real</p>
+          </div>
+          <a href="resultados.html" class="block w-full bg-green-600 text-white text-center py-3 rounded-lg hover:bg-green-700 transition font-semibold">
+            Ver Resultados
+          </a>
+        </div>
+      </div>
+
+      <!-- Características -->
+      <div class="mt-16 bg-white rounded-lg shadow-xl p-8">
+        <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">Características del Sistema</h3>
+        <div class="grid md:grid-cols-3 gap-6">
+          <div class="text-center p-4 bg-gradient-to-br from-indigo-50 to-blue-50 rounded-lg">
+            <div class="text-4xl mb-3">🔒</div>
+            <h4 class="font-semibold text-gray-800 mb-2">Seguro</h4>
+            <p class="text-gray-600 text-sm">Un voto por correo electrónico con validación</p>
+          </div>
+          <div class="text-center p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg">
+            <div class="text-4xl mb-3">📧</div>
+            <h4 class="font-semibold text-gray-800 mb-2">Automatizado</h4>
+            <p class="text-gray-600 text-sm">Envío automático de encuestas por email</p>
+          </div>
+          <div class="text-center p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg">
+            <div class="text-4xl mb-3">📊</div>
+            <h4 class="font-semibold text-gray-800 mb-2">Tiempo Real</h4>
+            <p class="text-gray-600 text-sm">Resultados actualizados al instante</p>
+          </div>
+          <div class="text-center p-4 bg-gradient-to-br from-yellow-50 to-orange-50 rounded-lg">
+            <div class="text-4xl mb-3">☁️</div>
+            <h4 class="font-semibold text-gray-800 mb-2">100% Cloud</h4>
+            <p class="text-gray-600 text-sm">Sin necesidad de servidor local</p>
+          </div>
+          <div class="text-center p-4 bg-gradient-to-br from-red-50 to-pink-50 rounded-lg">
+            <div class="text-4xl mb-3">🆓</div>
+            <h4 class="font-semibold text-gray-800 mb-2">Gratis</h4>
+            <p class="text-gray-600 text-sm">Servicios gratuitos de Firebase y EmailJS</p>
+          </div>
+          <div class="text-center p-4 bg-gradient-to-br from-cyan-50 to-blue-50 rounded-lg">
+            <div class="text-4xl mb-3">🚀</div>
+            <h4 class="font-semibold text-gray-800 mb-2">Fácil Deploy</h4>
+            <p class="text-gray-600 text-sm">Despliega en minutos a cualquier hosting</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Información de configuración -->
+      <div class="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+        <h4 class="font-bold text-yellow-900 mb-2">⚠️ Configuración Requerida</h4>
+        <p class="text-yellow-800 text-sm mb-2">
+          Antes de usar la plataforma, debes configurar tus credenciales en el archivo <code class="bg-yellow-100 px-2 py-1 rounded">config.js</code>:
+        </p>
+        <ul class="text-yellow-800 text-sm list-disc list-inside space-y-1">
+          <li><strong>Firebase:</strong> Crea un proyecto en <a href="https://console.firebase.google.com/" target="_blank" class="underline">Firebase Console</a></li>
+          <li><strong>EmailJS:</strong> Crea una cuenta en <a href="https://www.emailjs.com/" target="_blank" class="underline">EmailJS</a></li>
+          <li>Consulta el archivo <code class="bg-yellow-100 px-2 py-1 rounded">SETUP.md</code> para instrucciones detalladas</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <footer class="bg-gray-800 text-white py-6 mt-12">
+    <div class="container mx-auto px-6 text-center">
+      <p>&copy; 2024 Plataforma de Encuestas Cloud. Powered by Firebase & EmailJS</p>
+    </div>
+  </footer>
+</body>
+</html>

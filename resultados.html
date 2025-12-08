@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resultados de la Encuesta</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-50">
+  <nav class="bg-indigo-600 text-white shadow-lg">
+    <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold">📊 Resultados de la Encuesta</h1>
+      <div class="space-x-4">
+        <button onclick="location.reload()" class="bg-indigo-500 px-4 py-2 rounded hover:bg-indigo-400">🔄 Actualizar</button>
+        <a href="index.html" class="bg-indigo-500 px-4 py-2 rounded hover:bg-indigo-400">← Volver</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mx-auto px-6 py-8">
+    <div id="loading" class="text-center py-20">
+      <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+      <p class="text-gray-600">Cargando resultados...</p>
+    </div>
+
+    <div id="contenido" class="hidden">
+      <!-- Estadísticas Generales -->
+      <div class="grid md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-lg p-6 text-center">
+          <div class="text-4xl font-bold text-indigo-600" id="totalVotantes">0</div>
+          <div class="text-gray-600 mt-2">Total Votantes</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-lg p-6 text-center">
+          <div class="text-4xl font-bold text-green-600" id="totalParticipantes">0</div>
+          <div class="text-gray-600 mt-2">Participantes</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-lg p-6 text-center">
+          <div class="text-4xl font-bold text-purple-600" id="totalCargos">0</div>
+          <div class="text-gray-600 mt-2">Cargos</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-lg p-6 text-center">
+          <div class="text-4xl font-bold text-orange-600" id="participacion">0%</div>
+          <div class="text-gray-600 mt-2">Participación</div>
+        </div>
+      </div>
+
+      <!-- Resultados por Cargo -->
+      <div id="resultadosCargos" class="space-y-8"></div>
+    </div>
+  </div>
+
+  <script src="./config.js"></script>
+  <script type="module">
+    import { initFirebase } from './firebase-service.js';
+
+    const db = initFirebase(firebaseConfig);
+
+    async function cargarResultados() {
+      try {
+        const data = await db.obtenerResultados();
+        mostrarEstadisticas(data.estadisticas);
+        mostrarResultados(data.resultados);
+
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('contenido').classList.remove('hidden');
+      } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('loading').innerHTML = `
+          <div class="bg-red-50 border border-red-200 rounded-lg p-8 text-center">
+            <p class="text-red-800">❌ Error al cargar los resultados</p>
+          </div>
+        `;
+      }
+    }
+
+    function mostrarEstadisticas(stats) {
+      document.getElementById('totalVotantes').textContent = stats.totalVotantes;
+      document.getElementById('totalParticipantes').textContent = stats.totalParticipantes;
+      document.getElementById('totalCargos').textContent = stats.totalCargos;
+      document.getElementById('participacion').textContent = stats.porcentajeParticipacion + '%';
+    }
+
+    function mostrarResultados(resultados) {
+      const container = document.getElementById('resultadosCargos');
+      let chartIndex = 0;
+
+      container.innerHTML = Object.entries(resultados).map(([cargoId, datos]) => {
+        const currentIndex = chartIndex++;
+        const aspirantesArray = Object.entries(datos.aspirantes).map(([id, data]) => ({
+          id,
+          ...data
+        }));
+
+        const totalVotos = aspirantesArray.reduce((sum, a) => sum + a.votos, 0) + 
+                          datos.noSe + datos.ninguno;
+
+        return `
+          <div class="bg-white rounded-lg shadow-lg p-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">${datos.cargo}</h2>
+            
+            <div class="grid md:grid-cols-2 gap-8">
+              <!-- Gráfico -->
+              <div>
+                <canvas id="chart_${currentIndex}" class="max-h-80"></canvas>
+              </div>
+
+              <!-- Lista de Resultados -->
+              <div>
+                <h3 class="text-lg font-bold text-gray-700 mb-4">Desglose de Votos</h3>
+                <div class="space-y-3">
+                  ${aspirantesArray.map(a => {
+                    const porcentaje = totalVotos > 0 ? ((a.votos / totalVotos) * 100).toFixed(1) : 0;
+                    return `
+                      <div class="border border-gray-200 rounded-lg p-4">
+                        <div class="flex justify-between items-center mb-2">
+                          <span class="font-semibold text-gray-800">${a.nombre}</span>
+                          <span class="text-2xl font-bold text-indigo-600">${a.votos}</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3">
+                          <div class="bg-indigo-600 h-3 rounded-full transition-all" style="width: ${porcentaje}%"></div>
+                        </div>
+                        <div class="text-right text-sm text-gray-600 mt-1">${porcentaje}%</div>
+                      </div>
+                    `;
+                  }).join('')}
+                  
+                  ${datos.noSe > 0 ? `
+                    <div class="border border-yellow-200 rounded-lg p-4 bg-yellow-50">
+                      <div class="flex justify-between items-center mb-2">
+                        <span class="font-semibold text-gray-700">🤔 No sé</span>
+                        <span class="text-xl font-bold text-yellow-600">${datos.noSe}</span>
+                      </div>
+                      <div class="w-full bg-yellow-200 rounded-full h-2">
+                        <div class="bg-yellow-500 h-2 rounded-full" style="width: ${totalVotos > 0 ? ((datos.noSe / totalVotos) * 100).toFixed(1) : 0}%"></div>
+                      </div>
+                      <div class="text-right text-sm text-gray-600 mt-1">${totalVotos > 0 ? ((datos.noSe / totalVotos) * 100).toFixed(1) : 0}%</div>
+                    </div>
+                  ` : ''}
+                  
+                  ${datos.ninguno > 0 ? `
+                    <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                      <div class="flex justify-between items-center mb-2">
+                        <span class="font-semibold text-gray-700">❌ Ninguno</span>
+                        <span class="text-xl font-bold text-gray-600">${datos.ninguno}</span>
+                      </div>
+                      <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-gray-500 h-2 rounded-full" style="width: ${totalVotos > 0 ? ((datos.ninguno / totalVotos) * 100).toFixed(1) : 0}%"></div>
+                      </div>
+                      <div class="text-right text-sm text-gray-600 mt-1">${totalVotos > 0 ? ((datos.ninguno / totalVotos) * 100).toFixed(1) : 0}%</div>
+                    </div>
+                  ` : ''}
+                </div>
+
+                <div class="mt-6 pt-4 border-t border-gray-200">
+                  <div class="flex justify-between text-lg font-bold">
+                    <span>Total de Votos:</span>
+                    <span class="text-indigo-600">${totalVotos}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Crear gráficos
+      Object.entries(resultados).forEach(([cargoId, datos], index) => {
+        const ctx = document.getElementById(`chart_${index}`);
+        const aspirantesArray = Object.entries(datos.aspirantes).map(([id, data]) => data);
+        
+        const labels = [
+          ...aspirantesArray.map(a => a.nombre),
+          ...(datos.noSe > 0 ? ['No sé'] : []),
+          ...(datos.ninguno > 0 ? ['Ninguno'] : [])
+        ];
+        
+        const dataValues = [
+          ...aspirantesArray.map(a => a.votos),
+          ...(datos.noSe > 0 ? [datos.noSe] : []),
+          ...(datos.ninguno > 0 ? [datos.ninguno] : [])
+        ];
+        
+        const colores = [
+          '#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
+          '#EC4899', '#14B8A6', '#F97316', '#06B6D4', '#84CC16'
+        ];
+
+        new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: labels,
+            datasets: [{
+              data: dataValues,
+              backgroundColor: colores.slice(0, labels.length),
+              borderWidth: 2,
+              borderColor: '#fff'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+              legend: {
+                position: 'bottom',
+                labels: {
+                  padding: 15,
+                  font: { size: 12 }
+                }
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                    const porcentaje = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : 0;
+                    return `${context.label}: ${context.parsed} votos (${porcentaje}%)`;
+                  }
+                }
+              }
+            }
+          }
+        });
+      });
+    }
+
+    cargarResultados();
+  </script>
+</body>
+</html>
