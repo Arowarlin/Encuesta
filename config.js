@@ -1,4 +1,3 @@
-
 // ============================================
 // CONFIGURACIÓN DE FIREBASE
 // ============================================
@@ -15,17 +14,22 @@ const firebaseConfig = {
 // CONFIGURACIÓN DE EMAILJS
 // ============================================
 const emailJSConfig = {
-  publicKey: "vPoQgWPzHt2fdfgsL",
-  serviceId: "service_3o1ef2g",
-  templateId: "template_2zwoqtm"
+  publicKey: "vPoQgWPzHt2fdfgsL",      // Public Key
+  serviceId: "service_3o1ef2g",         // Service ID
+  templateId: "template_2zwoqtm"        // Template ID
 };
 
 // ============================================
-// CONFIGURACIÓN DE LA APLICACIÓN
+// URL BASE DE LA APLICACIÓN
 // ============================================
-const appConfig = {
-  nombre: "Plataforma de Encuestas",
-  // 🔥 URL CORREGIDA: Ahora incluye /Encuesta/ en la ruta
-  baseUrl: "https://arowarlin.github.io/Encuesta",
-  version: "1.0.0"
+// Esta URL se detecta automáticamente
+// Funciona tanto en local como en producción
+const APP_CONFIG = {
+  baseUrl: "https://arowarlin.github.io/Encuesta" ,
+  appName: "Plataforma de Encuestas"
 };
+
+// Exportar configuraciones (no modificar)
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { firebaseConfig, emailJSConfig, APP_CONFIG };
+}
