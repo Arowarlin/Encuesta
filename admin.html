@@ -154,16 +154,40 @@
     </div>
   </div>
 
+  <!-- 🔥 CARGAR CONFIG.JS PRIMERO -->
+  <script src="./config.js"></script>
+  <script src="./email-service.js"></script>
+
   <script type="module">
     import { initFirebase } from './firebase-service.js';
-    import { initEmailService } from './email-service.js';
 
-    // Inicializar servicios
-    const db = initFirebase(firebaseConfig);
-    const emailSvc = initEmailService(emailJSConfig);
+    // Esperar a que el DOM esté listo
+    window.addEventListener('DOMContentLoaded', async () => {
+      try {
+        // Verificar que config.js se haya cargado
+        if (typeof firebaseConfig === 'undefined') {
+          throw new Error('firebaseConfig no está definido. Verifica que config.js esté en la misma carpeta.');
+        }
 
-    window.db = db;
-    window.emailSvc = emailSvc;
+        // Inicializar servicios
+        const db = initFirebase(firebaseConfig);
+        const emailSvc = window.emailService;
+
+        window.db = db;
+        window.emailSvc = emailSvc;
+
+        console.log('✅ Servicios inicializados correctamente');
+
+        // Cargar datos iniciales
+        await cargarParticipantes();
+        await cargarCargos();
+        await cargarAspirantes();
+
+      } catch (error) {
+        console.error('❌ Error al inicializar:', error);
+        alert('Error al inicializar: ' + error.message + '\n\nAsegúrate de que config.js está en la misma carpeta que admin.html');
+      }
+    });
 
     // Tabs
     window.mostrarTab = function(tab) {
@@ -188,7 +212,7 @@
       btn.textContent = 'Registrando...';
 
       try {
-        await db.registrarParticipante({
+        await window.db.registrarParticipante({
           correo: document.getElementById('correo').value,
           nombre: document.getElementById('nombre').value,
           apellido: document.getElementById('apellido').value,
@@ -209,7 +233,7 @@
     });
 
     async function cargarParticipantes() {
-      const participantes = await db.obtenerParticipantes();
+      const participantes = await window.db.obtenerParticipantes();
       document.getElementById('listaParticipantes').innerHTML = `
         <table class="min-w-full">
           <thead class="bg-gray-50">
@@ -238,7 +262,7 @@
     document.getElementById('formCargo').addEventListener('submit', async (e) => {
       e.preventDefault();
       try {
-        await db.registrarCargo({
+        await window.db.registrarCargo({
           nombre: document.getElementById('nombreCargo').value,
           descripcion: document.getElementById('descripcionCargo').value
         });
@@ -251,7 +275,7 @@
     });
 
     async function cargarCargos() {
-      const cargos = await db.obtenerCargos();
+      const cargos = await window.db.obtenerCargos();
       document.getElementById('listaCargos').innerHTML = cargos.map(c => `
         <div class="border border-gray-200 rounded p-3 mb-2">
           <strong>${c.nombre}</strong>
@@ -269,7 +293,7 @@
     document.getElementById('formAspirante').addEventListener('submit', async (e) => {
       e.preventDefault();
       try {
-        await db.registrarAspirante({
+        await window.db.registrarAspirante({
           cargoId: document.getElementById('cargoSelect').value,
           nombre: document.getElementById('nombreAspirante').value,
           descripcion: document.getElementById('descripcionAspirante').value
@@ -284,8 +308,8 @@
 
     async function cargarAspirantes() {
       const [aspirantes, cargos] = await Promise.all([
-        db.obtenerAspirantes(),
-        db.obtenerCargos()
+        window.db.obtenerAspirantes(),
+        window.db.obtenerCargos()
       ]);
 
       const cargosMap = Object.fromEntries(cargos.map(c => [c.id, c.nombre]));
@@ -300,7 +324,7 @@
     }
 
     async function cargarEstadisticas() {
-      const stats = await db.obtenerEstadisticas();
+      const stats = await window.db.obtenerEstadisticas();
       document.getElementById('estadisticas').innerHTML = `
         <div class="bg-blue-50 p-4 rounded-lg text-center">
           <div class="text-3xl font-bold text-blue-600">${stats.totalParticipantes}</div>
@@ -320,29 +344,26 @@
     window.enviarEncuestas = async function() {
       if (!confirm('¿Enviar encuestas a todos los participantes?')) return;
 
-      const participantes = await db.obtenerParticipantes();
+      const participantes = await window.db.obtenerParticipantes();
       const progressBar = document.getElementById('progressBar');
       progressBar.classList.remove('hidden');
 
-      const resultado = await emailSvc.enviarEncuestaMasiva(participantes, APP_CONFIG.baseUrl, (progress) => {
-        document.getElementById('progressFill').style.width = progress.porcentaje + '%';
-        document.getElementById('progressText').textContent = `${progress.actual}/${progress.total} - ${progress.porcentaje}%`;
+      const resultado = await window.emailSvc.enviarInvitacionesMasivas(participantes, (progress) => {
+        const porcentaje = Math.round((progress.actual / progress.total) * 100);
+        document.getElementById('progressFill').style.width = porcentaje + '%';
+        document.getElementById('progressText').textContent = `${progress.actual}/${progress.total} - ${porcentaje}%`;
       });
 
       document.getElementById('resultadoEnvio').innerHTML = `
         <div class="bg-green-50 border border-green-200 rounded-lg p-4">
           <h3 class="font-bold text-green-800 mb-2">✅ Encuestas Enviadas</h3>
-          <p class="text-green-700">Enviados: ${resultado.enviados}</p>
-          <p class="text-green-700">Errores: ${resultado.errores}</p>
+          <p class="text-green-700">Enviados: ${resultado.exitosos.length}</p>
+          <p class="text-green-700">Errores: ${resultado.fallidos.length}</p>
         </div>
       `;
     };
 
-    // Cargar datos iniciales
-    cargarParticipantes();
-    cargarCargos();
-    cargarAspirantes();
+    }); // Fin de DOMContentLoaded
   </script>
-  <script src="./config.js"></script>
 </body>
 </html>
