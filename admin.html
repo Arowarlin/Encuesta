@@ -6,10 +6,6 @@
   <title>Panel de Administración</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-  
-  <!-- 🔥 CARGAR CONFIG.JS PRIMERO -->
-  <script src="./config.js"></script>
-  <script src="./email-service.js"></script>
 </head>
 <body class="bg-gray-50">
   <nav class="bg-indigo-600 text-white shadow-lg">
@@ -54,21 +50,20 @@
           </div>
           <div>
             <label class="block text-gray-700 font-semibold mb-2">Edad</label>
-            <input type="number" id="edad" min="18" max="120" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:outline-none">
+            <input type="number" id="campo1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:outline-none">
           </div>
           <div>
             <label class="block text-gray-700 font-semibold mb-2">Sexo</label>
-            <select id="sexo" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:outline-none">
+            <select id="campo2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:outline-none">
               <option value="">-- Seleccionar --</option>
               <option value="Masculino">Masculino</option>
               <option value="Femenino">Femenino</option>
               <option value="Otro">Otro</option>
-              <option value="Prefiero no decir">Prefiero no decir</option>
             </select>
           </div>
           <div>
             <label class="block text-gray-700 font-semibold mb-2">Ciudad</label>
-            <input type="text" id="ciudad" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:outline-none" placeholder="Ej: Santo Domingo">
+            <input type="text" id="campo3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:outline-none">
           </div>
           <div class="md:col-span-2">
             <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 font-semibold">
@@ -161,45 +156,14 @@
 
   <script type="module">
     import { initFirebase } from './firebase-service.js';
+    import { initEmailService } from './email-service.js';
 
-    // 🔥 IMPORTANTE: Esperar a que config.js se cargue
-    window.addEventListener('DOMContentLoaded', async () => {
-      let db, emailSvc;
+    // Inicializar servicios
+    const db = initFirebase(firebaseConfig);
+    const emailSvc = initEmailService(emailJSConfig);
 
-      try {
-        // Verificar que la config esté cargada
-        if (!window.firebaseConfig) {
-          throw new Error('firebaseConfig no está definido. Verifica que config.js se haya cargado correctamente.');
-        }
-
-        if (!window.emailJSConfig) {
-          throw new Error('emailJSConfig no está definido. Verifica que config.js se haya cargado correctamente.');
-        }
-
-        // Inicializar Firebase
-        db = initFirebase();
-        console.log('✅ Firebase inicializado correctamente');
-
-        // Inicializar EmailJS
-        emailSvc = window.emailService;
-        if (emailSvc) {
-          emailSvc.verificarConfiguracion();
-        }
-
-        // Hacer disponibles globalmente
-        window.db = db;
-        window.emailSvc = emailSvc;
-
-        // Cargar datos iniciales
-        await cargarParticipantes();
-        await cargarCargos();
-        await cargarAspirantes();
-
-      } catch (error) {
-        console.error('❌ Error al inicializar servicios:', error);
-        alert('Error al inicializar: ' + error.message + '\n\nAsegúrate de que config.js esté en la misma carpeta.');
-      }
-    });
+    window.db = db;
+    window.emailSvc = emailSvc;
 
     // Tabs
     window.mostrarTab = function(tab) {
@@ -217,38 +181,6 @@
     };
 
     // Participantes
-    async function cargarParticipantes() {
-      const participantes = await window.db.obtenerParticipantes();
-      document.getElementById('listaParticipantes').innerHTML = `
-        <table class="min-w-full">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Correo</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombre</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Edad</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sexo</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ciudad</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            ${participantes.map(p => `
-              <tr>
-                <td class="px-6 py-4 text-sm">${p.correo}</td>
-                <td class="px-6 py-4 text-sm">${p.nombre} ${p.apellido}</td>
-                <td class="px-6 py-4 text-sm">${p.edad || '-'}</td>
-                <td class="px-6 py-4 text-sm">${p.sexo || '-'}</td>
-                <td class="px-6 py-4 text-sm">${p.ciudad || '-'}</td>
-                <td class="px-6 py-4 text-sm">
-                  ${p.haVotado ? '<span class="text-green-600 font-semibold">✓ Votó</span>' : '<span class="text-gray-400">Pendiente</span>'}
-                </td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      `;
-    }
-
     document.getElementById('formParticipante').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = e.target.querySelector('button[type="submit"]');
@@ -256,13 +188,13 @@
       btn.textContent = 'Registrando...';
 
       try {
-        await window.db.registrarParticipante({
+        await db.registrarParticipante({
           correo: document.getElementById('correo').value,
           nombre: document.getElementById('nombre').value,
           apellido: document.getElementById('apellido').value,
-          edad: document.getElementById('edad').value,
-          sexo: document.getElementById('sexo').value,
-          ciudad: document.getElementById('ciudad').value
+          campo1: document.getElementById('campo1').value,
+          campo2: document.getElementById('campo2').value,
+          campo3: document.getElementById('campo3').value
         });
         
         alert('✅ Participante registrado exitosamente');
@@ -276,9 +208,50 @@
       }
     });
 
+    async function cargarParticipantes() {
+      const participantes = await db.obtenerParticipantes();
+      document.getElementById('listaParticipantes').innerHTML = `
+        <table class="min-w-full">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Correo</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombre</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            ${participantes.map(p => `
+              <tr>
+                <td class="px-6 py-4 text-sm">${p.correo}</td>
+                <td class="px-6 py-4 text-sm">${p.nombre} ${p.apellido}</td>
+                <td class="px-6 py-4 text-sm">
+                  ${p.haVotado ? '<span class="text-green-600 font-semibold">✓ Votó</span>' : '<span class="text-gray-400">Pendiente</span>'}
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
     // Cargos
+    document.getElementById('formCargo').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        await db.registrarCargo({
+          nombre: document.getElementById('nombreCargo').value,
+          descripcion: document.getElementById('descripcionCargo').value
+        });
+        alert('✅ Cargo registrado');
+        e.target.reset();
+        cargarCargos();
+      } catch (error) {
+        alert('❌ Error: ' + error.message);
+      }
+    });
+
     async function cargarCargos() {
-      const cargos = await window.db.obtenerCargos();
+      const cargos = await db.obtenerCargos();
       document.getElementById('listaCargos').innerHTML = cargos.map(c => `
         <div class="border border-gray-200 rounded p-3 mb-2">
           <strong>${c.nombre}</strong>
@@ -292,26 +265,27 @@
       `;
     }
 
-    document.getElementById('formCargo').addEventListener('submit', async (e) => {
+    // Aspirantes
+    document.getElementById('formAspirante').addEventListener('submit', async (e) => {
       e.preventDefault();
       try {
-        await window.db.registrarCargo({
-          nombre: document.getElementById('nombreCargo').value,
-          descripcion: document.getElementById('descripcionCargo').value
+        await db.registrarAspirante({
+          cargoId: document.getElementById('cargoSelect').value,
+          nombre: document.getElementById('nombreAspirante').value,
+          descripcion: document.getElementById('descripcionAspirante').value
         });
-        alert('✅ Cargo registrado');
+        alert('✅ Aspirante registrado');
         e.target.reset();
-        cargarCargos();
+        cargarAspirantes();
       } catch (error) {
         alert('❌ Error: ' + error.message);
       }
     });
 
-    // Aspirantes
     async function cargarAspirantes() {
       const [aspirantes, cargos] = await Promise.all([
-        window.db.obtenerAspirantes(),
-        window.db.obtenerCargos()
+        db.obtenerAspirantes(),
+        db.obtenerCargos()
       ]);
 
       const cargosMap = Object.fromEntries(cargos.map(c => [c.id, c.nombre]));
@@ -325,25 +299,8 @@
       `).join('');
     }
 
-    document.getElementById('formAspirante').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      try {
-        await window.db.registrarAspirante({
-          cargoId: document.getElementById('cargoSelect').value,
-          nombre: document.getElementById('nombreAspirante').value,
-          descripcion: document.getElementById('descripcionAspirante').value
-        });
-        alert('✅ Aspirante registrado');
-        e.target.reset();
-        cargarAspirantes();
-      } catch (error) {
-        alert('❌ Error: ' + error.message);
-      }
-    });
-
-    // Estadísticas
     async function cargarEstadisticas() {
-      const stats = await window.db.obtenerEstadisticas();
+      const stats = await db.obtenerEstadisticas();
       document.getElementById('estadisticas').innerHTML = `
         <div class="bg-blue-50 p-4 rounded-lg text-center">
           <div class="text-3xl font-bold text-blue-600">${stats.totalParticipantes}</div>
@@ -360,61 +317,32 @@
       `;
     }
 
-    // 🔥 CORREGIDO: Función de envío de encuestas
     window.enviarEncuestas = async function() {
       if (!confirm('¿Enviar encuestas a todos los participantes?')) return;
 
-      const participantes = await window.db.obtenerParticipantes();
-      
-      if (participantes.length === 0) {
-        alert('❌ No hay participantes registrados');
-        return;
-      }
-
+      const participantes = await db.obtenerParticipantes();
       const progressBar = document.getElementById('progressBar');
-      const progressFill = document.getElementById('progressFill');
-      const progressText = document.getElementById('progressText');
-      
       progressBar.classList.remove('hidden');
-      progressFill.style.width = '0%';
 
-      try {
-        // 🔥 CORREGIDO: Usar la función correcta
-        const resultado = await window.emailSvc.enviarInvitacionesMasivas(participantes, (progress) => {
-          const porcentaje = Math.round((progress.actual / progress.total) * 100);
-          progressFill.style.width = porcentaje + '%';
-          progressText.textContent = `${progress.actual}/${progress.total} - ${porcentaje}% (${progress.participante})`;
-          
-          if (!progress.exito) {
-            console.error(`Error enviando a ${progress.participante}:`, progress.error);
-          }
-        });
+      const resultado = await emailSvc.enviarEncuestaMasiva(participantes, APP_CONFIG.baseUrl, (progress) => {
+        document.getElementById('progressFill').style.width = progress.porcentaje + '%';
+        document.getElementById('progressText').textContent = `${progress.actual}/${progress.total} - ${progress.porcentaje}%`;
+      });
 
-        document.getElementById('resultadoEnvio').innerHTML = `
-          <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-            <h3 class="font-bold text-green-800 mb-2">✅ Proceso Completado</h3>
-            <p class="text-green-700">Exitosos: ${resultado.exitosos.length}</p>
-            <p class="text-green-700">Fallidos: ${resultado.fallidos.length}</p>
-            ${resultado.fallidos.length > 0 ? `
-              <div class="mt-3 text-red-700">
-                <p class="font-semibold">Errores:</p>
-                <ul class="list-disc list-inside text-sm">
-                  ${resultado.fallidos.map(f => `<li>${f.correo}: ${f.error}</li>`).join('')}
-                </ul>
-              </div>
-            ` : ''}
-          </div>
-        `;
-      } catch (error) {
-        console.error('Error general:', error);
-        document.getElementById('resultadoEnvio').innerHTML = `
-          <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-            <p class="text-red-800">❌ Error: ${error.message}</p>
-          </div>
-        `;
-      }
+      document.getElementById('resultadoEnvio').innerHTML = `
+        <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+          <h3 class="font-bold text-green-800 mb-2">✅ Encuestas Enviadas</h3>
+          <p class="text-green-700">Enviados: ${resultado.enviados}</p>
+          <p class="text-green-700">Errores: ${resultado.errores}</p>
+        </div>
+      `;
     };
 
+    // Cargar datos iniciales
+    cargarParticipantes();
+    cargarCargos();
+    cargarAspirantes();
   </script>
+  <script src="./config.js"></script>
 </body>
 </html>
